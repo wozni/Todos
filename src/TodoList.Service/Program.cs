@@ -53,14 +53,18 @@ app.MapPost("/notebooks/{notebookId:int}/notes", async ([FromServices]Applicatio
 
 app.MapDelete("/notebooks/{notebookId:int}", () =>
 {
-   // TODO
+   // TODO Usuwanie notebook-a
 });
 
 app.MapDelete("/notebooks/{notebookId:int}/notes/{noteId:int}", () =>
 {
-    // TODO
+    // TODO Usuwanie notatki z notebooka
 });
 
+
+// TODO: Relacja wiele-wiele -> obiekt Kategorii(Id, Nazwa) - predefiniowane kategorie dla notatek
+// można notatkom nadawać te kategorie (relacja wiele-wiele)
+// Endpoint do dodawania i usuwania kategorii dla notatek + wyświetlanie notatki z kategoriami
 
 
 using var scope = app.Services.CreateScope();
