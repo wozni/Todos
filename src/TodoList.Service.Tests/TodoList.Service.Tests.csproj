@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TodoList.Service\TodoList.Service.csproj" />
+  </ItemGroup>
+
 </Project>

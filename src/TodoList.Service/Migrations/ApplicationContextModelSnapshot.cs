@@ -41,6 +41,48 @@ namespace TodoList.Service.Migrations
 
                     b.ToTable("Notebooks", (string)null);
                 });
+
+            modelBuilder.Entity("TodoList.Service.Model.Note", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Notes", (string)null);
+                });
+
+            modelBuilder.Entity("TodoList.Service.Model.Note", b =>
+                {
+                    b.HasOne("Notebook", "Owner")
+                        .WithMany("Notes")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Notebook", b =>
+                {
+                    b.Navigation("Notes");
+                });
 #pragma warning restore 612, 618
         }
     }
