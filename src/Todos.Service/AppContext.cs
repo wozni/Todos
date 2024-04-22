@@ -11,6 +11,9 @@
             todo.ToTable("TodoLists");
             todo.HasKey(x => x.Id);
             todo.Property(x => x.Name).HasMaxLength(30);
+            todo.HasMany(x => x.Items)
+                .WithOne(i => i.Owner)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
