@@ -1,5 +1,4 @@
-﻿// Setup services
-var builder = WebApplication.CreateBuilder();
+﻿var builder = WebApplication.CreateBuilder();
 builder.Services.AddSqlServer<AppContext>(builder.Configuration.GetConnectionString("Default"));
 var app = builder.Build();
 app.MapTodosApi();
