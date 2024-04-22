@@ -6,7 +6,11 @@ public static class TodoListsApi
     {
         app.MapGet("/todos", async ([FromServices] AppContext context) =>
         {
-            await context.TodoLists.ToListAsync();
+            var lists = await context.TodoLists
+                .Include(x => x.Items)
+                .ToListAsync();
+            return lists
+                .Select(todoList => new TodoListModel(todoList));
         });
     }
 }
