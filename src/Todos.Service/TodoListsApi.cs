@@ -12,5 +12,17 @@ public static class TodoListsApi
             return lists
                 .Select(todoList => new TodoListModel(todoList));
         });
+
+        app.MapPost("/todos", async ([FromServices] AppContext context, TodoListModel model) =>
+        {
+            var newList = new ToDoList
+            {
+                Name = model.Name,
+                Description = model.Description
+            };
+            context.TodoLists.Add(newList);
+            await context.SaveChangesAsync();
+            return $"Utworzono nową listę o nazwie: {newList.Name}";
+        });
     }
 }
