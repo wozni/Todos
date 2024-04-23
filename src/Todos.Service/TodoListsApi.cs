@@ -39,5 +39,22 @@ public static class TodoListsApi
                 return $"Usunięto listę o nazwie: {name}";
             }
         });
+
+        app.MapPost("/todos/{list_name}/task", async ([FromServices] AppContext context, string list_name, ToDoListItemModel model) =>
+        {
+            var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
+            if (todoList == null) return $"Nie znaleziono listy o nazwie: {list_name}";
+            else
+            {
+                var newTask = new ToDoListItem
+                {
+                    Name = model.Name,
+                    Owner = todoList
+                };
+                todoList.Items.Add(newTask);
+                await context.SaveChangesAsync();
+                return $"Dodano nowe zadanie do listy o nazwie: {list_name}";
+            }
+        });
     }
 }
