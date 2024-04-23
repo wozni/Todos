@@ -15,6 +15,9 @@ public static class TodoListsApi
 
         app.MapPost("/todos", async ([FromServices] AppContext context, TodoListModel model) =>
         {
+            var existingList = await context.TodoLists.FirstOrDefaultAsync(x => x.Name == model.Name);
+            if (existingList != null) return $"Lista o nazwie '{model.Name}' już istnieje.";
+
             var newList = new ToDoList
             {
                 Name = model.Name,
