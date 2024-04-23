@@ -27,5 +27,17 @@ public static class TodoListsApi
             await context.SaveChangesAsync();
             return $"Utworzono nową listę o nazwie: {newList.Name}";
         });
+
+        app.MapDelete("/todos/{name}", async ([FromServices] AppContext context, string name) =>
+        {
+            var listToDelete = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == name);
+            if (listToDelete == null) return $"Lista o nazwie {name} nie istnieje";
+            else
+            {
+                context.TodoLists.Remove(listToDelete);
+                await context.SaveChangesAsync();
+                return $"Usunięto listę o nazwie: {name}";
+            }
+        });
     }
 }
