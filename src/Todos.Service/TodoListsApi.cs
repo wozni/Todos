@@ -50,6 +50,19 @@ public static class TodoListsApi
             await context.SaveChangesAsync();
             return Results.Created($"/todos/{list_name}/item", $"Dodano nowe zadanie do listy o nazwie: {list_name}");
         });
+        
+        app.MapDelete("/todos/{list_name}/{item_name}", async ([FromServices] AppContext context, string list_name, string item_name) =>
+            {
+                var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
+                if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+                
+                var taskToRemove = todoList.Items.FirstOrDefault(task => task.Name == item_name);
+                if (taskToRemove == null) return Results.BadRequest($"Nie znaleziono zadania o nazwie: {item_name} na liście: {list_name}");
+
+                todoList.Items.Remove(taskToRemove);
+                await context.SaveChangesAsync();
+                return Results.Ok($"Usunięto zadanie o nazwie: {item_name} z listy: {list_name}");
+            });
 
         app.MapGet("/todos/{list_name}", async ([FromServices] AppContext context, string list_name) =>
         {
