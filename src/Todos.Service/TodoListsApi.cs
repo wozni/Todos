@@ -50,5 +50,13 @@ public static class TodoListsApi
             await context.SaveChangesAsync();
             return Results.Created($"/todos/{list_name}/item", $"Dodano nowe zadanie do listy o nazwie: {list_name}");
         });
+
+        app.MapGet("/todos/{list_name}", async ([FromServices] AppContext context, string list_name) =>
+        {
+            var list = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == list_name);
+            if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+            
+            return Results.Ok(list.Items.Select(task => new ToDoListItemModel(task.Name)));
+        });
     }
 }
