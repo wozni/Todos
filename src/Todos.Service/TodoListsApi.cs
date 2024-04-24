@@ -37,6 +37,17 @@ public static class TodoListsApi
             return Results.Ok($"Usunięto listę o nazwie: {name}");
         });
 
+        app.MapDelete("/todos/{name}/removeAll", async ([FromServices] AppContext context, string name) =>
+        {
+            var todoList = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == name);
+            if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {name}");
+            todoList.Items.RemoveAll(e => true);
+            await context.SaveChangesAsync();
+    
+            return Results.Ok($"Usunięto wszystkie zadania z listy o nazwie: {name}");
+        });
+
+        
         app.MapPost("/todos/{list_name}/item", async ([FromServices] AppContext context, string list_name, ToDoListItemModel model) =>
         {
             var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
@@ -53,7 +64,7 @@ public static class TodoListsApi
         
         app.MapDelete("/todos/{list_name}/{item_name}", async ([FromServices] AppContext context, string list_name, string item_name) =>
             {
-                var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
+                var todoList = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == list_name);
                 if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
                 
                 var taskToRemove = todoList.Items.FirstOrDefault(task => task.Name == item_name);
