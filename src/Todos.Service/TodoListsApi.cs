@@ -30,55 +30,55 @@ public static class TodoListsApi
 
         app.MapDelete("/todos/{name}", async ([FromServices] AppContext context, string name) =>
         {
-            var listToDelete = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == name);
-            if (listToDelete == null) return Results.BadRequest($"Lista o nazwie {name} nie istnieje");
-            context.TodoLists.Remove(listToDelete);
+            var list = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == name);
+            if (list == null) return Results.BadRequest($"Lista o nazwie {name} nie istnieje");
+            context.TodoLists.Remove(list);
             await context.SaveChangesAsync();
             return Results.Ok($"Usunięto listę o nazwie: {name}");
         });
 
         app.MapDelete("/todos/{name}/removeAll", async ([FromServices] AppContext context, string name) =>
         {
-            var todoList = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == name);
-            if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {name}");
-            todoList.Items.RemoveAll(e => true);
+            var list = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == name);
+            if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {name}");
+            list.Items.RemoveAll(e => true);
             await context.SaveChangesAsync();
     
             return Results.Ok($"Usunięto wszystkie zadania z listy o nazwie: {name}");
         });
 
         
-        app.MapPost("/todos/{list_name}/item", async ([FromServices] AppContext context, string list_name, ToDoListItemModel model) =>
+        app.MapPost("/todos/{listName}/item", async ([FromServices] AppContext context, string listName, ToDoListItemModel model) =>
         {
-            var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
-            if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+            var list = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == listName);
+            if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {listName}");
             var newItem = new ToDoListItem
             {
                 Name = model.Name,
-                Owner = todoList
+                Owner = list
             };
-            todoList.Items.Add(newItem);
+            list.Items.Add(newItem);
             await context.SaveChangesAsync();
-            return Results.Created($"/todos/{list_name}/item", $"Dodano nowe zadanie do listy o nazwie: {list_name}");
+            return Results.Created($"/todos/{listName}/item", $"Dodano nowe zadanie do listy o nazwie: {listName}");
         });
         
-        app.MapDelete("/todos/{list_name}/{item_name}", async ([FromServices] AppContext context, string list_name, string item_name) =>
+        app.MapDelete("/todos/{listName}/{item_name}", async ([FromServices] AppContext context, string listName, string itemName) =>
             {
-                var todoList = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == list_name);
-                if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+                var list = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == listName);
+                if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {listName}");
                 
-                var taskToRemove = todoList.Items.FirstOrDefault(task => task.Name == item_name);
-                if (taskToRemove == null) return Results.BadRequest($"Nie znaleziono zadania o nazwie: {item_name} na liście: {list_name}");
+                var taskToRemove = list.Items.FirstOrDefault(task => task.Name == itemName);
+                if (taskToRemove == null) return Results.BadRequest($"Nie znaleziono zadania o nazwie: {itemName} na liście: {listName}");
 
-                todoList.Items.Remove(taskToRemove);
+                list.Items.Remove(taskToRemove);
                 await context.SaveChangesAsync();
-                return Results.Ok($"Usunięto zadanie o nazwie: {item_name} z listy: {list_name}");
+                return Results.Ok($"Usunięto zadanie o nazwie: {itemName} z listy: {listName}");
             });
 
-        app.MapGet("/todos/{list_name}", async ([FromServices] AppContext context, string list_name) =>
+        app.MapGet("/todos/{listName}", async ([FromServices] AppContext context, string listName) =>
         {
-            var list = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == list_name);
-            if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+            var list = await context.TodoLists.Include(l => l.Items).FirstOrDefaultAsync(t => t.Name == listName);
+            if (list == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {listName}");
             
             return Results.Ok(list.Items.Select(task => new ToDoListItemModel(task.Name)));
         });
