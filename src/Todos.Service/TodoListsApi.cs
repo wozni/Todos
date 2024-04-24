@@ -16,7 +16,7 @@ public static class TodoListsApi
         app.MapPost("/todos", async ([FromServices] AppContext context, TodoListModel model) =>
         {
             var existingList = await context.TodoLists.FirstOrDefaultAsync(x => x.Name == model.Name);
-            if (existingList != null) return $"Lista o nazwie '{model.Name}' już istnieje.";
+            if (existingList != null) return Results.BadRequest($"Lista o nazwie '{model.Name}' już istnieje.");
 
             var newList = new ToDoList
             {
@@ -25,36 +25,30 @@ public static class TodoListsApi
             };
             context.TodoLists.Add(newList);
             await context.SaveChangesAsync();
-            return $"Utworzono nową listę o nazwie: {newList.Name}";
+            return Results.Created($"/todos", $"Utworzono nową listę o nazwie: {newList.Name}");
         });
 
         app.MapDelete("/todos/{name}", async ([FromServices] AppContext context, string name) =>
         {
             var listToDelete = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == name);
-            if (listToDelete == null) return $"Lista o nazwie {name} nie istnieje";
-            else
-            {
-                context.TodoLists.Remove(listToDelete);
-                await context.SaveChangesAsync();
-                return $"Usunięto listę o nazwie: {name}";
-            }
+            if (listToDelete == null) return Results.BadRequest($"Lista o nazwie {name} nie istnieje");
+            context.TodoLists.Remove(listToDelete);
+            await context.SaveChangesAsync();
+            return Results.Ok($"Usunięto listę o nazwie: {name}");
         });
 
         app.MapPost("/todos/{list_name}/task", async ([FromServices] AppContext context, string list_name, ToDoListItemModel model) =>
         {
             var todoList = await context.TodoLists.FirstOrDefaultAsync(t => t.Name == list_name);
-            if (todoList == null) return $"Nie znaleziono listy o nazwie: {list_name}";
-            else
+            if (todoList == null) return Results.BadRequest($"Nie znaleziono listy o nazwie: {list_name}");
+            var newTask = new ToDoListItem
             {
-                var newTask = new ToDoListItem
-                {
-                    Name = model.Name,
-                    Owner = todoList
-                };
-                todoList.Items.Add(newTask);
-                await context.SaveChangesAsync();
-                return $"Dodano nowe zadanie do listy o nazwie: {list_name}";
-            }
+                Name = model.Name,
+                Owner = todoList
+            };
+            todoList.Items.Add(newTask);
+            await context.SaveChangesAsync();
+            return Results.Created($"/todos/{list_name}/task", $"Dodano nowe zadanie do listy o nazwie: {list_name}");
         });
     }
 }
