@@ -1,11 +1,15 @@
-﻿public class TodoListModel
+﻿using System.Text.Json.Serialization;
+
+public class TodoListModel
 {
     public TodoListModel(ToDoList list)
     {
         Name = list.Name;
-        ItemsCount = list.Items.Count;
+        Description = list.Description;
     }
-    
-    public string Name { get; }
-    public int ItemsCount { get;}
+
+    [JsonConstructor]
+    public TodoListModel(){}
+    public string Name { get; set; }
+    public string Description { get; set; }
 }
